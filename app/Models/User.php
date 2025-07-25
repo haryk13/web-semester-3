@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +45,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the articles for the user.
+     */
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is an editor.
+     */
+    public function isEditor(): bool
+    {
+        return $this->role === 'editor';
+    }
+
+    /**
+     * Check if user can access admin panel.
+     */
+    public function canAccessAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
+    }
+
+    /**
+     * Check if user can manage content.
+     */
+    public function canManageContent(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
     }
 }

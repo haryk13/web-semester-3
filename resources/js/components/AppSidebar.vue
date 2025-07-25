@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DarkModeToggle from '@/components/DarkModeToggle.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -51,6 +52,10 @@ const footerNavItems: NavItem[] = [
         <SidebarFooter>
             <NavFooter :items="footerNavItems" />
             <NavUser />
+            <!-- Dark Mode Toggle -->
+            <div class="px-3 py-2 border-t border-sidebar-border">
+                <DarkModeToggle />
+            </div>
         </SidebarFooter>
     </Sidebar>
     <slot />
