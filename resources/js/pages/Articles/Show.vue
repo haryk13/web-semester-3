@@ -132,26 +132,66 @@ const props = defineProps({
 
 <style>
 .prose h2 {
-  @apply text-2xl font-bold text-gray-900 mt-8 mb-4;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 .prose h3 {
-  @apply text-xl font-bold text-gray-900 mt-6 mb-3;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .prose p {
-  @apply text-gray-700 leading-relaxed mb-4;
+  color: #374151;
+  line-height: 1.625;
+  margin-bottom: 1rem;
 }
 
 .prose ul {
-  @apply list-disc list-inside mb-4 text-gray-700;
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+  color: #374151;
 }
 
 .prose pre {
-  @apply bg-gray-100 rounded-lg p-4 overflow-x-auto mb-4;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
 }
 
 .prose code {
-  @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .prose h2,
+  .prose h3 {
+    color: #f9fafb;
+  }
+  
+  .prose p,
+  .prose ul {
+    color: #d1d5db;
+  }
+  
+  .prose pre,
+  .prose code {
+    background-color: #374151;
+    color: #f9fafb;
+  }
 }
 </style>
