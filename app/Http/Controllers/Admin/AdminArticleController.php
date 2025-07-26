@@ -3,16 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreArticleRequest;
+use App\Http\Requests\Admin\UpdateArticleRequest;
+use App\Services\ImageUploadService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class AdminArticleController extends Controller
 {
+    protected $imageUploadService;
+
+    public function __construct(ImageUploadService $imageUploadService)
+    {
+        $this->imageUploadService = $imageUploadService;
+    }
     public function index(Request $request)
     {
         $query = Article::with(['category', 'user', 'tags']);
@@ -76,19 +84,23 @@ class AdminArticleController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreArticleRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'excerpt' => 'required|string|max:500',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|string|max:255',
-            'is_published' => 'boolean',
-            'reading_time' => 'nullable|integer|min:1',
-            'tags' => 'array',
-            'tags.*' => 'exists:tags,id',
-        ]);
+        $validated = $request->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            try {
+                $imageResult = $this->imageUploadService->uploadImage(
+                    $request->file('image'),
+                    'articles',
+                    ImageUploadService::getArticleThumbnailSizes()
+                );
+                $validated['image'] = $imageResult['original'];
+            } catch (\Exception $e) {
+                return back()->withErrors(['image' => 'Failed to upload image: ' . $e->getMessage()]);
+            }
+        }
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['user_id'] = auth()->id();
@@ -156,19 +168,38 @@ class AdminArticleController extends Controller
         ]);
     }
 
-    public function update(Request $request, Article $article)
+    public function update(UpdateArticleRequest $request, Article $article)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'excerpt' => 'required|string|max:500',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|string|max:255',
-            'is_published' => 'boolean',
-            'reading_time' => 'nullable|integer|min:1',
-            'tags' => 'array',
-            'tags.*' => 'exists:tags,id',
-        ]);
+        $validated = $request->validated();
+        
+        // Handle image operations
+        if ($request->boolean('remove_image') && $article->image) {
+            // Delete current image
+            $imagePath = str_replace('/storage/', '', parse_url($article->image, PHP_URL_PATH));
+            $this->imageUploadService->deleteImage($imagePath);
+            $validated['image'] = null;
+        } elseif ($request->hasFile('image')) {
+            // Upload new image
+            try {
+                // Delete old image if exists
+                if ($article->image) {
+                    $oldImagePath = str_replace('/storage/', '', parse_url($article->image, PHP_URL_PATH));
+                    $this->imageUploadService->deleteImage($oldImagePath);
+                }
+
+                $imageResult = $this->imageUploadService->uploadImage(
+                    $request->file('image'),
+                    'articles',
+                    ImageUploadService::getArticleThumbnailSizes()
+                );
+                $validated['image'] = $imageResult['original'];
+            } catch (\Exception $e) {
+                return back()->withErrors(['image' => 'Failed to upload image: ' . $e->getMessage()]);
+            }
+        } elseif ($request->filled('current_image')) {
+            // Keep existing image
+            $validated['image'] = $request->current_image;
+        }
 
         $validated['slug'] = Str::slug($validated['title']);
 
@@ -191,6 +222,12 @@ class AdminArticleController extends Controller
 
     public function destroy(Article $article)
     {
+        // Delete associated image
+        if ($article->image) {
+            $imagePath = str_replace('/storage/', '', parse_url($article->image, PHP_URL_PATH));
+            $this->imageUploadService->deleteImage($imagePath);
+        }
+
         $article->tags()->detach();
         $article->delete();
 

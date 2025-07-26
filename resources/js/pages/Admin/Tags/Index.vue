@@ -98,14 +98,15 @@
                         <Link v-for="link in tags.links" 
                               :key="link.label"
                               :href="link.url"
-                              v-html="link.label"
                               :class="[
                                   'px-3 py-2 text-sm rounded-md',
                                   link.active 
                                       ? 'bg-blue-600 text-white' 
                                       : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                               ]"
-                              :disabled="!link.url" />
+                              :disabled="!link.url">
+                            {{ link.label }}
+                        </Link>
                     </div>
                 </nav>
             </div>

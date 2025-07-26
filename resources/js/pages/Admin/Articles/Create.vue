@@ -81,19 +81,13 @@
                     </div>
                 </div>
 
-                <!-- Image URL -->
-                <div>
-                    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
-                        Featured Image URL
-                    </label>
-                    <input v-model="form.image" 
-                           id="image"
-                           type="url" 
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           :class="{ 'border-red-500': form.errors.image }"
-                           placeholder="https://example.com/image.jpg">
-                    <div v-if="form.errors.image" class="text-red-600 text-sm mt-1">{{ form.errors.image }}</div>
-                </div>
+                <!-- Featured Image -->
+                <ImageUpload v-model="form.image"
+                            label="Featured Image"
+                            :upload-url="route('admin.upload.article-image')"
+                            alt-text="Article featured image"
+                            @uploaded="onImageUploaded"
+                            @error="onImageError" />
 
                 <!-- Tags -->
                 <div>
@@ -162,8 +156,9 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import ImageUpload from '@/Components/ImageUpload.vue';
 
-const props = defineProps({
+defineProps({
     categories: Array,
     tags: Array,
 });
@@ -181,5 +176,15 @@ const form = useForm({
 
 const submit = () => {
     form.post(route('admin.articles.store'));
+};
+
+const onImageUploaded = (imageData) => {
+    form.image = imageData.original;
+    console.log('Image uploaded:', imageData);
+};
+
+const onImageError = (error) => {
+    // Handle upload errors
+    console.error('Image upload error:', error);
 };
 </script>

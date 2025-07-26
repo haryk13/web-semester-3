@@ -86,4 +86,16 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['admin', 'editor']);
     }
+
+    /**
+     * Check if user has any of the given roles.
+     */
+    public function hasRole(array|string $roles): bool
+    {
+        if (is_string($roles)) {
+            return $this->role === $roles;
+        }
+
+        return in_array($this->role, $roles);
+    }
 }

@@ -31,8 +31,11 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function show(Category $category)
+    public function show($slug)
     {
+        // Find category by slug
+        $category = Category::where('slug', $slug)->firstOrFail();
+        
         if (!$category->is_active) {
             abort(404);
         }

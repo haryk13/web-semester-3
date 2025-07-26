@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminArticleController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminTagController;
+use App\Http\Controllers\Admin\ImageUploadController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -36,6 +37,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     
     // Tags management
     Route::resource('tags', AdminTagController::class)->except(['show']);
+    
+    // Image uploads
+    Route::post('upload/article-image', [ImageUploadController::class, 'uploadArticleImage'])->name('upload.article-image');
+    Route::post('upload/category-image', [ImageUploadController::class, 'uploadCategoryImage'])->name('upload.category-image');
+    Route::post('upload/editor-image', [ImageUploadController::class, 'uploadEditorImage'])->name('upload.editor-image');
+    Route::delete('upload/delete-image', [ImageUploadController::class, 'deleteImage'])->name('upload.delete-image');
 });
 
 require __DIR__.'/settings.php';

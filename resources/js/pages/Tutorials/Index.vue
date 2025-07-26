@@ -133,10 +133,9 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
 import PublicLayout from '@/layouts/PublicLayout.vue'
 
-const props = defineProps({
+defineProps({
   categories: Array
 })
 </script>

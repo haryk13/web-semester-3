@@ -36,8 +36,11 @@ class ArticleController extends Controller
         ]);
     }
 
-    public function show(Article $article)
+    public function show($slug)
     {
+        // Find article by slug
+        $article = Article::where('slug', $slug)->firstOrFail();
+        
         // Only show published articles
         if (!$article->is_published) {
             abort(404);

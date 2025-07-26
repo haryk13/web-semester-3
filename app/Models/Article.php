@@ -60,6 +60,10 @@ class Article extends Model
      */
     public function getRouteKeyName(): string
     {
+        // Use ID for admin routes, slug for public routes
+        if (request()->is('admin/*')) {
+            return 'id';
+        }
         return 'slug';
     }
 
